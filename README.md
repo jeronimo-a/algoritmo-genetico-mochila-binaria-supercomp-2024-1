@@ -1,1 +1,3 @@
-# algoritmo-genetico-mochila-binaria-supercomp-2024-1
+# Supercomputação, 2024-1
+
+## Algoritmo genético para o problema da mochila binária

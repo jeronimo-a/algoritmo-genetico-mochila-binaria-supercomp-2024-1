@@ -3,7 +3,7 @@
 #include <vector>
 
 // constantes de controle da aleatoriedade
-const int SEED = 525072;        // seed do gerador de números pseudoaleatórios
+const int SEED = 123133;        // seed do gerador de números pseudoaleatórios
 
 // constantes de controle dos itens
 const int N_ITEMS = 10;         // quantidade de itens
@@ -25,11 +25,15 @@ const int N_PARENTS = 8;        // quantas soluções são passadas adiante por 
 const double CROSSOVER_RATE = 0.8;  // probabilidade de ocorrer crossover para cada par de pais
 const int CROSSOVER_POINT = 8;      // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
 
+// constantes de controle da mutação
+const double MUTATION_RATE = 0.15;  // probabilidade de ocorrer uma mutação em um offspring
+
 // funções
 int verify_constants();                                                                                 // verifica a validade das constantes
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);    // calcula o fitness de uma solução
 std::vector<int> make_selection(std::vector<int> fitnesses);                                            // seleciona as N_PARENTS soluções com maior fitness
 std::vector<int> make_crossover(std::vector<int> parent_1, std::vector<int> parent_2);                  // faz invariavelmente o crossover de parent 1 com parent 2
+std::vector<int> make_mutation(std::vector<int> solution);                                              // faz invariavelmente uma mutação na solution
 
 int main() {
 
@@ -203,4 +207,28 @@ std::vector<int> make_crossover(std::vector<int> parent_1, std::vector<int> pare
     }
 
     return offspring;
+}
+
+std::vector<int> make_mutation(std::vector<int> solution) {
+    // faz invariavelmente uma mutação no solution passado como argumento
+    // escolhe um gene aleatório da solução para inverter
+    //
+    // recebe:
+    // - solution: vetor dos genes da solução a ser mutada
+    //
+    // retorna: vetor gos genes da solução mutados
+
+    // declara o vetor da solução com mutação e gera um índice aleatório
+    std::vector<int> result(N_ITEMS);
+    int random_index = rand() % N_ITEMS;
+
+    // preenche o vetor com os valores de entrada, mas altera o do índice aleatório
+    for (int i = 0; i < N_ITEMS; i++) {
+        result[i] = solution[i];
+        if (i == random_index) {
+            result[i] = (result[i] + 1) % 2;
+        }
+    }
+
+    return result;
 }

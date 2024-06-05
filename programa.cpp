@@ -6,14 +6,16 @@
 const int N_ITEMS = 10;         // quantidade de itens
 const int SEED = 12453;         // seed da aleatorização
 const int MIN_VALUE = 1;        // valor mínimo de cada item
-const int MAX_VALUE = 50;       // valor máximo de cada item
+const int MAX_VALUE = 40;       // valor máximo de cada item
 const int MIN_WEIGHT = 1;       // peso mínimo de cada item
 const int MAX_WEIGHT = 10;      // peso máximo de cada item
-const int BAG_CAPACITY = 30;    // capacidade da mochila
+const int BAG_CAPACITY = 40;    // capacidade da mochila
 const int POP_SIZE = 16;        // soluções por população
+const int N_PARENTS = 8;        // quantas soluções são passadas adiante por iteração
 
 // funções
-int fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);  // calcula o fitness de uma solução
+int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);    // calcula o fitness de uma solução
+std::vector<int> make_selection(std::vector<int> fitnesses);                                              // seleciona as N_PARENTS soluções com maior fitness
 
 int main() {
 
@@ -76,10 +78,17 @@ int main() {
     }
 }
 
-int fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution) {
+int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution) {
     // calcula o valor do fitness de uma solução
     // se o peso total da solução for maior que a capacidade da mochila, retorn 0
     // se o peso total da solução for menor ou igual à capacidade da mochila, retorna a soma dos valores dos itens da solução
+    //
+    // recebe:
+    // - values:    vetor dos valores dos itens
+    // - weights:   vetor dos pesos dos itens
+    // - solution:  vetor dos genes de uma única solução
+    //
+    // retorna: o fitness dessa única solução
 
     // calcula o peso combinado dos itens
     int solution_weight = 0;                                // acumulador do peso da solução
@@ -95,4 +104,39 @@ int fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> 
     }
 
     return solution_value;
+}
+
+std::vector<int> make_selection(std::vector<int> fitnesses) {
+    // seleciona os N_PARENTS soluções com o fitness mais alto
+    //
+    // recebe
+    // - fitnesses: vetor com os valores dos fitness da população atual em ordem
+    //
+    // retorna: um vetor em ordem com as soluções mais adequadas (0 para inadequada, 1 para adequada)
+
+    // vetor dos resultados e variável de referência
+    std::vector<int> results(POP_SIZE, 0);  // vetor dos resultados inicializado com zeros
+    int n_selected = 0;                     // quantidade de parents selecionados
+
+    // loop de seleção
+    while (n_selected < N_PARENTS) {    // até que soluções o suficiente sejam escolhidas
+
+        // variáveis auxiliares para encontrar o índice do fitness mais alto
+        int max_fitness = -1;           // valor de fitness mais alto
+        int max_fitness_index = -1;     // índice do valor de fitness mais alto
+
+        // loop de seleção da solução com o fitness mais alto ainda não inclusa nos resultados
+        for (int i = 0; i < POP_SIZE; i++) {                        // percorre o fitness de todas as soluções
+            if (fitnesses[i] > max_fitness && results[i] == 0) {    // se for o maior fitness até então e não tiver sido incluso nos resultados
+                max_fitness = fitnesses[i];                         // atualiza qual o valor mais alto encontrado até então
+                max_fitness_index = i;                              // atualiza o índice do valor mais alto encontrado até então
+            }
+        }
+
+        // atualiza os resultados e a variável de contagem 
+        results[max_fitness_index] = 1; // adiciona a solução mais adequada do loop aos resultados
+        n_selected++;
+    }
+
+    return results;
 }

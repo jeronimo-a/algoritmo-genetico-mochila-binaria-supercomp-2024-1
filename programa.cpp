@@ -3,14 +3,17 @@
 #include <vector>
 
 // constantes de controle
-const int N_ITEMS = 40;         // quantidade de itens
+const int N_ITEMS = 10;         // quantidade de itens
 const int SEED = 12453;         // seed da aleatorização
 const int MIN_VALUE = 1;        // valor mínimo de cada item
 const int MAX_VALUE = 50;       // valor máximo de cada item
 const int MIN_WEIGHT = 1;       // peso mínimo de cada item
 const int MAX_WEIGHT = 10;      // peso máximo de cada item
-const int BAG_CAPACITY = 100;   // capacidade da mochila
+const int BAG_CAPACITY = 30;    // capacidade da mochila
 const int POP_SIZE = 16;        // soluções por população
+
+// funções
+int fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);  // calcula o fitness de uma solução
 
 int main() {
 
@@ -71,4 +74,25 @@ int main() {
         // quebra de linha
         std::cout << std::endl;
     }
+}
+
+int fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution) {
+    // calcula o valor do fitness de uma solução
+    // se o peso total da solução for maior que a capacidade da mochila, retorn 0
+    // se o peso total da solução for menor ou igual à capacidade da mochila, retorna a soma dos valores dos itens da solução
+
+    // calcula o peso combinado dos itens
+    int solution_weight = 0;                                // acumulador do peso da solução
+    for (int i = 0; i < N_ITEMS; i++) {                     // percorre todos os genes da solução
+        solution_weight += weights[i] * solution[i];        // soma o peso do item ao acumulador com base no valor do gene
+        if (solution_weight > BAG_CAPACITY) { return 0; }   // se o peso ultrapassar o limite da mochila, já retorna 0
+    }
+
+    // calcula o valor da mochila
+    int solution_value = 0;                                 // acumulador do valor da solução
+    for (int i = 0; i < N_ITEMS; i++) {                     // percorre todos os genes da solução
+        solution_value += values[i] * solution[i];          // soma o valor do item ao acumulador com base no valor do gene
+    }
+
+    return solution_value;
 }

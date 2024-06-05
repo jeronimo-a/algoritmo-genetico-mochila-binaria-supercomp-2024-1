@@ -2,15 +2,23 @@
 #include <random>
 #include <vector>
 
-// constantes de controle
+// constantes de controle da aleatoriedade
+const int SEED = 525072;        // seed do gerador de números pseudoaleatórios
+
+// constantes de controle dos itens
 const int N_ITEMS = 10;         // quantidade de itens
-const int SEED = 12453;         // seed da aleatorização
 const int MIN_VALUE = 1;        // valor mínimo de cada item
 const int MAX_VALUE = 40;       // valor máximo de cada item
 const int MIN_WEIGHT = 1;       // peso mínimo de cada item
 const int MAX_WEIGHT = 10;      // peso máximo de cada item
+
+// constantes de controle da mochila
 const int BAG_CAPACITY = 40;    // capacidade da mochila
+
+// constantes de controle da população
 const int POP_SIZE = 16;        // soluções por população
+
+// constantes de controle da seleção
 const int N_PARENTS = 8;        // quantas soluções são passadas adiante por iteração
 
 // funções
@@ -18,6 +26,12 @@ int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::ve
 std::vector<int> make_selection(std::vector<int> fitnesses);                                              // seleciona as N_PARENTS soluções com maior fitness
 
 int main() {
+
+    // gera erro no caso de constantes inválidas
+    if (N_PARENTS > POP_SIZE) {
+        std::cerr << "O número de pais não pode ser maior que o da população." << std::endl;
+        return 1;
+    }
 
     // gerador de números aleatórios com a SEED definida nas constantes
     srand(SEED);

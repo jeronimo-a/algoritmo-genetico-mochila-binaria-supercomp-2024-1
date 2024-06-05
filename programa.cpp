@@ -22,16 +22,14 @@ const int POP_SIZE = 16;        // soluções por população
 const int N_PARENTS = 8;        // quantas soluções são passadas adiante por iteração
 
 // funções
+int verify_constants();                                                                                 // verifica a validade das constantes
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);    // calcula o fitness de uma solução
-std::vector<int> make_selection(std::vector<int> fitnesses);                                              // seleciona as N_PARENTS soluções com maior fitness
+std::vector<int> make_selection(std::vector<int> fitnesses);                                            // seleciona as N_PARENTS soluções com maior fitness
 
 int main() {
 
-    // gera erro no caso de constantes inválidas
-    if (N_PARENTS > POP_SIZE) {
-        std::cerr << "O número de pais não pode ser maior que o da população." << std::endl;
-        return 1;
-    }
+    // verifica se as constantes são válidas
+    if (verify_constants()) { return 1; }
 
     // gerador de números aleatórios com a SEED definida nas constantes
     srand(SEED);
@@ -90,6 +88,22 @@ int main() {
         // quebra de linha
         std::cout << std::endl;
     }
+}
+
+int verify_constants() {
+    // verifica as constantes e retorna 1 se algum dos valores for inválido
+    // também gera mensagens de erro explicativas
+
+    // bool, 1 se encontrou alguma constante inválida, 0 se não
+    int is_any_invalid = 0;
+
+    // gera erro no caso de N_PARENTS maior que POP_SIZE
+    if (N_PARENTS > POP_SIZE) {
+        std::cerr << "O número de pais não pode ser maior que o da população." << std::endl;
+        is_any_invalid = 1;
+    }
+
+    return is_any_invalid;
 }
 
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution) {

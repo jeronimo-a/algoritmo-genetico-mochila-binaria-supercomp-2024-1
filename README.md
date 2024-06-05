@@ -1,0 +1,1 @@
+# algoritmo-genetico-mochila-binaria-supercomp-2024-1

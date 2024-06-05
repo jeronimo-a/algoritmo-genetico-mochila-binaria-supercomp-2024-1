@@ -21,10 +21,15 @@ const int POP_SIZE = 16;        // soluções por população
 // constantes de controle da seleção
 const int N_PARENTS = 8;        // quantas soluções são passadas adiante por iteração
 
+// constantes de controle do crossover
+const double CROSSOVER_RATE = 0.8;  // probabilidade de ocorrer crossover para cada par de pais
+const int CROSSOVER_POINT = 8;      // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
+
 // funções
 int verify_constants();                                                                                 // verifica a validade das constantes
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);    // calcula o fitness de uma solução
 std::vector<int> make_selection(std::vector<int> fitnesses);                                            // seleciona as N_PARENTS soluções com maior fitness
+std::vector<int> make_crossover(std::vector<int> parent_1, std::vector<int> parent_2);                  // faz invariavelmente o crossover de parent 1 com parent 2
 
 int main() {
 
@@ -99,7 +104,13 @@ int verify_constants() {
 
     // gera erro no caso de N_PARENTS maior que POP_SIZE
     if (N_PARENTS > POP_SIZE) {
-        std::cerr << "O número de pais não pode ser maior que o da população." << std::endl;
+        std::cerr << "Erro: N_PARENTS > POP_SIZE." << std::endl;
+        is_any_invalid = 1;
+    }
+
+    // gera erro no caso de CROSSOVER_POINT maior ou igual a N_ITEMS
+    if (CROSSOVER_POINT >= N_ITEMS) {
+        std::cerr << "Erro: CROSSOVER_POINT >= N_ITEMS" << std::endl;
         is_any_invalid = 1;
     }
 
@@ -167,4 +178,29 @@ std::vector<int> make_selection(std::vector<int> fitnesses) {
     }
 
     return results;
+}
+
+std::vector<int> make_crossover(std::vector<int> parent_1, std::vector<int> parent_2) {
+    // faz o crossover de dois parents
+    // 
+    // recebe:
+    // - parent_1: vetor dos genes do parent 1
+    // - parent_2: vetor dos genes do parent 2
+    //
+    // retorna: vetor dos genes do filho
+
+    // declara o vetor do filho
+    std::vector<int> offspring(N_ITEMS);
+
+    // preenche parte do vetor do filho com os genes do pai 1
+    for (int i = 0; i < CROSSOVER_POINT; i++) {
+        offspring[i] = parent_1[i];
+    }
+
+    // preenche parte do vetor do filho com os genes do pai 2
+    for (int i = CROSSOVER_POINT; i < N_ITEMS; i++) {
+        offspring[i] = parent_2[i];
+    }
+
+    return offspring;
 }

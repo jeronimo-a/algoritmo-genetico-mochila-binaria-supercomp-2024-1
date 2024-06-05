@@ -57,12 +57,18 @@ int main() {
 
     // inicializaçao e apresentação da população inicial
     for (int i = 0; i < POP_SIZE; i++) {    // percorre todas as soluções da população
-        std::cout << i << "\t";             // apresenta o número da solução
+
+        // apresenta o número da solução
+        std::cout << i << "\t";
+
+        // preenche e apresenta os genes da solução
         for (int j = 0; j < N_ITEMS; j++) { // percorre todos os itens da solução
             int gene_value = rand() % 2;    // 50% de chance de 0, 50% de chance de 1
             population[i][j] = gene_value;  // insere o valor obtido na matriz da população
             std::cout << gene_value << " "; // apresenta o valor do gene
         }
-        std::cout << std::endl;             // quebra de linha
+
+        // quebra de linha
+        std::cout << std::endl;
     }
 }

@@ -21,8 +21,9 @@ int main() {
     // gerador de números aleatórios com a SEED definida nas constantes
     srand(SEED);
 
-    // header da apresentação dos valores
-    std::cout << "POSSÍVEIS ITENS:" << std::endl;
+    // capacidade de mochila e header da apresentação dos valores
+    std::cout << std::endl << "CAPACIDADE DA MOCHILA: " << BAG_CAPACITY << std::endl;
+    std::cout << std::endl << "POSSÍVEIS ITENS:" << std::endl;
     std::cout << "Item\tValor\tPeso" << std::endl;
 
     // inicialização e apresentação dos vetores
@@ -34,8 +35,8 @@ int main() {
         item_weights[i] = (rand() + MIN_WEIGHT) % MAX_WEIGHT + MIN_WEIGHT;  // o pes é aleatório dentro do intervalo [MIN_WEIGHT, MAX_WEIGHT]
 
         // apresentação dos vetores
-        std::cout << item_ids[i] << "\t";           // mostra os IDs dos itens
-        std::cout << item_values[i] << "\t";        // mostra os valores dos itens
-        std::cout << item_weights[i] << std::endl;  // mostra os pesos dos itens
+        std::cout << item_ids[i] << "\t";
+        std::cout << item_values[i] << "\t";
+        std::cout << item_weights[i] << std::endl;
     }
 }

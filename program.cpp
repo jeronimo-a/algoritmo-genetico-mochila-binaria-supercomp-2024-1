@@ -352,15 +352,21 @@ int parse_arguments(int argc, char* argv[]) {
 
     // coleta os argumentos
     try {
-        N_PARENTS = std::stoi(argv[1]);
-        CROSSOVER_RATE = std::stod(argv[2]);
-        MUTATION_RATE = std::stod(argv[3]);
-    } catch (const std::invalid_argument& e) {
+        N_PARENTS = std::stoi(argv[1]);         // argumento do número de parents
+        CROSSOVER_RATE = std::stod(argv[2]);    // argumento da taxa de crossover
+        MUTATION_RATE = std::stod(argv[3]);     // argumento da taxa de mutação
+    }
+    
+    // captura erros de argumentos de tipo inválido
+    catch (const std::invalid_argument& e) {
         std::cerr << "Erro: utilização: " << argv[0];
         std::cerr << " <N_PARENTS:integer> <CROSSOVER_RATE:double> ";
         std::cerr << "<MUTATION_RATE:double>" << std::endl;
         return 1;
-    } catch (const std::out_of_range& e) {
+    }
+    
+    // captura erros de argumentos grandes demais
+    catch (const std::out_of_range& e) {
         std::cerr << "Erro: argumentos grandes demais" << std::endl;
         return 1;
     }

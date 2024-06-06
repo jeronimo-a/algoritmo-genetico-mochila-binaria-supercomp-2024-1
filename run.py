@@ -22,7 +22,10 @@ N_SEEDS = 10000             # número de seeds diferentes para testar por parâm
 N_VARIATIONS = 100          # quantidade de valores para testar na taxa de crossover e de mutação
 GENERATIONS = 30            # número de gerações por execução
 POP_SIZE = 8                # quantidade de soluções por geração
-EXECUTABLE_NAME = "program" # nome do executável do algoritmo
+
+# constantes extra
+EXECUTABLE_NAME = "program"     # nome do executável do algoritmo
+N_PARENTS_NAME = "N_PARENTS"
 
 def main():
 
@@ -46,12 +49,12 @@ def main():
 
     # dicionário dos argumentos para deixar o código menos repetitivo
     arguments = {
-        "N_PARENTS": n_parents_list
+        N_PARENTS_NAME: n_parents_list,
     }
 
     # dicionário dos argumentos de chamada do script formatados
     subprocess_arguments = {
-        "N_PARENTS": ([str(GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3)
+        N_PARENTS_NAME: ([str(GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3)
     }
 
     # embaralha a lista de seeds e reduz o tamanho

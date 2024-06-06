@@ -18,13 +18,11 @@ const int MAX_WEIGHT = 10;      // peso máximo de cada item
 // constantes de controle da mochila
 const int BAG_CAPACITY = 100;   // capacidade da mochila
 
-// constantes de controle da população
-const int POP_SIZE = 10;        // soluções por população
-
 // constantes de controle do crossover
 const int CROSSOVER_POINT = 20;     // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
 
 // variáveis de entrada (são passadas como argumentos para o programa)
+int POP_SIZE;           // soluções por geração
 int N_PARENTS;          // quantas soluções são passadas adiante por iteração
 double CROSSOVER_RATE;  // probabilidade de ocorrer crossover para cada par de pais
 double MUTATION_RATE;   // probabilidade de ocorrer uma mutação em um filho
@@ -343,8 +341,8 @@ int parse_arguments(int argc, char* argv[]) {
     // atualiza as variáveis com os argumentos
 
     // gera um erro se a quantidade suficiente de argumentos não forem fornecidos
-    if (argc != 4) {
-        std::cerr << "Erro: utilização: " << argv[0];
+    if (argc != 5) {
+        std::cerr << "Erro: utilização: " << argv[0] << " <POP_SIZE:int>";
         std::cerr << " <N_PARENTS:integer> <CROSSOVER_RATE:double> ";
         std::cerr << "<MUTATION_RATE:double>" << std::endl;
         return 1;
@@ -352,14 +350,15 @@ int parse_arguments(int argc, char* argv[]) {
 
     // coleta os argumentos
     try {
-        N_PARENTS = std::stoi(argv[1]);         // argumento do número de parents
-        CROSSOVER_RATE = std::stod(argv[2]);    // argumento da taxa de crossover
-        MUTATION_RATE = std::stod(argv[3]);     // argumento da taxa de mutação
+        POP_SIZE = std::stoi(argv[1]);          // argumento da quantidade de soluções por geração
+        N_PARENTS = std::stoi(argv[2]);         // argumento do número de parents
+        CROSSOVER_RATE = std::stod(argv[3]);    // argumento da taxa de crossover
+        MUTATION_RATE = std::stod(argv[4]);     // argumento da taxa de mutação
     }
     
     // captura erros de argumentos de tipo inválido
     catch (const std::invalid_argument& e) {
-        std::cerr << "Erro: utilização: " << argv[0];
+        std::cerr << "Erro: utilização: " << argv[0] << " <POP_SIZE:int>";
         std::cerr << " <N_PARENTS:integer> <CROSSOVER_RATE:double> ";
         std::cerr << "<MUTATION_RATE:double>" << std::endl;
         return 1;
@@ -383,7 +382,7 @@ int verify_constants() {
 
     // gera erro no caso de N_PARENTS maior que POP_SIZE
     if (N_PARENTS > POP_SIZE) {
-        std::cerr << "Erro: N_PARENTS > " << POP_SIZE << " (POP_SIZE)" << std::endl;
+        std::cerr << "Erro: N_PARENTS > POP_SIZE" << std::endl;
         is_any_invalid = 1;
     }
 

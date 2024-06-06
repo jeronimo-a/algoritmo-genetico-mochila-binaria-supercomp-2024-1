@@ -99,6 +99,8 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < GENERATIONS; i++) {
         std::cout << results[i] << std::endl;
     }
+
+    return 0;
 }
 
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution) {

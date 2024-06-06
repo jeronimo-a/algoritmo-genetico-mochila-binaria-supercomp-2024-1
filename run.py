@@ -18,15 +18,17 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 
 # constantes de controle
-N_SEEDS = 2000              # número de seeds diferentes para testar por parâmetro
-N_VARIATIONS = 100          # quantidade de valores para testar na taxa de crossover e de mutação
-GENERATIONS = 30            # número de gerações por execução
-POP_SIZE = 8                # quantidade de soluções por geração
+N_SEEDS      = 10000    # número de seeds diferentes para testar por parâmetro
+N_VARIATIONS = 50       # quantidade de valores para testar na taxa de crossover e de mutação
+GENERATIONS  = 30       # número de gerações por execução
+POP_SIZE     = 16       # quantidade de soluções por geração
 
 # constantes extra
 SOURCE_CODE_LOCATION = "program.cpp"    # localização do código fonte
-EXECUTABLE_NAME = "program"             # nome do executável do algoritmo
-N_PARENTS_NAME = "N_PARENTS"            # nome do parâmetro N_PARENTS
+EXECUTABLE_NAME      = "program"        # nome do executável do algoritmo
+N_PARENTS_NAME       = "N_PARENTS"      # nome do parâmetro N_PARENTS
+MUTATION_RATE_NAME   = "MUTATION_RATE"  # nome do parâmetro MUTATION_RATE
+CROSSOVER_RATE_NAME  = "CROSSOVER_RATE" # nome do parâmetro CROSSOVER_RATE
 
 def main():
 
@@ -38,10 +40,10 @@ def main():
     os.system("g++ -o %s %s" % (EXECUTABLE_NAME, SOURCE_CODE_LOCATION))
     
     # argumentos dos parâmetros
-    seeds_list = list(range(0, N_SEEDS * 1000))                 # lista base das seeds, será embaralhada
-    n_parents_list = list(range(1, POP_SIZE + 1))               # varia de 1 até POP_SIZE, não pode ser menor nem maior
-    mutation_rate_list = list(np.linspace(0, 1, N_VARIATIONS))  # varia de 0 até 1 com N_VARIATIONS elementos
-    crossover_rate_list = list(np.linspace(0, 1, N_VARIATIONS)) # varia de 0 até 1 com N_VARIATIONS elementos
+    seeds_list = list(range(0, N_SEEDS * 1000))                                     # lista base das seeds, será embaralhada
+    n_parents_list = list(range(1, POP_SIZE + 1))                                   # varia de 1 até POP_SIZE, não pode ser menor nem maior
+    mutation_rate_list = list(np.linspace(0, 1, N_VARIATIONS))                      # varia de 0 até 1 com N_VARIATIONS elementos
+    crossover_rate_list = list(np.linspace(1 / N_VARIATIONS, 1, N_VARIATIONS - 1))  # varia de pouco mais de 0 até 1 com N_VARIATIONS - 1 elementos
 
     # argumentos neutros de cada parâmetro
     n_parents_neutral = n_parents_list[POP_SIZE // 2]                               # 50% morre 50% sobrevive
@@ -50,37 +52,42 @@ def main():
 
     # dicionário dos argumentos para deixar o código menos repetitivo
     arguments = {
-        N_PARENTS_NAME: (n_parents_list, [str(GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3),
+        N_PARENTS_NAME      : (n_parents_list, [str(GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3),
+        MUTATION_RATE_NAME  : (mutation_rate_list, [str(GENERATIONS), None, str(POP_SIZE), str(n_parents_neutral), str(crossover_rate_neutral), None], 1, 5),
+        CROSSOVER_RATE_NAME : (crossover_rate_list, [str(GENERATIONS), None, str(POP_SIZE), str(n_parents_neutral), None, str(mutation_rate_neutral)], 1, 4)
     }
 
     # embaralha a lista de seeds e reduz o tamanho
     random.shuffle(seeds_list)
     seeds_list = seeds_list[:N_SEEDS]
 
-    # dicionário dos resultados
+    # dicionário dos resultados e print de espaçamento
     results = dict()
+    print()
 
     for key in arguments.keys():
 
-        # inicializa o par chave valor do tipo de argumento nos resultados
+        # print de feedback de execução, inicialização dos resultados do parâmetro e variável de contagem do loop externo
+        print(key, "=" * (100 - len(key)), "\n")
         results[key] = list()
+        count_out = 0
 
         # loop de variação da quantidade de soluções sobreviventes por geração
         for argument in arguments[key][0]:
 
             # verbose para feedback de execução
-            print(key + ": %d/%d" % (argument, POP_SIZE))
+            print(key + ": %d/%d" % (count_out, len(arguments[key][0])))
 
             # variáveis para o loop de variação da seed
             max_fitnesses = list()  # lista de valores máximos (finais) de fitness por seed
-            count = 0               # contagem de iterações para verbose de feedback de execução
+            count_in = 0            # contagem de iterações do loop de seeds para verbose de feedback de execução
 
             # loop de variação da seed
             for seed in seeds_list:
 
                 # verbose de feedback de execução
-                if (count + 1) % 1000 == 0:                                # a cada 1000 iterações
-                    print("\tSEED: %d/%d" % (count + 1, len(seeds_list)))   # da sinal de vida
+                if (count_in + 1) % 1000 == 0:                                # a cada 1000 iterações
+                    print("\tSEED: %d/%d" % (count_in + 1, len(seeds_list)))  # da sinal de vida
 
                 # define os argumentos do subprocess (de chamada do algoritmo)
                 seed_index = arguments[key][2]                       # pega o índice do argumento da seed
@@ -91,24 +98,29 @@ def main():
                 # cria um subprocesso de chamada do algoritmo genético
                 subprocess_results = subprocess.run(["./" + EXECUTABLE_NAME] + arguments[key][1], capture_output=True, text=True)
 
-                # extrai a fitness máxima (final) da iteração e incrementa a contagem
+                # extrai a fitness máxima (final) da iteração e incrementa a contagem interna
                 max_fitness = int(subprocess_results.stdout.split()[-1])    # extrai a fitness máxima (final) da iteração
                 max_fitnesses.append(max_fitness)                           # adiciona a fitness máxima da iteração à lista de fitness máximas da seed
-                count += 1                                                  # incrementa a contagem
+                count_in += 1                                               # incrementa a contagem do loop de seeds
 
-            # calcula a média das fitness máximas para a seed e armazena no dicionário dos resultados
-            average_fitness = np.mean(max_fitnesses)        # calcula a média
-            results[key].append(average_fitness)            # adiciona ao dicionário de resultados
+            # calcula a média das fitness máximas para a seed e armazena no dicionário dos resultados e incrementa a contagem externa
+            average_fitness = np.mean(max_fitnesses)    # calcula a média
+            results[key].append(average_fitness)        # adiciona ao dicionário de resultados
+            count_out += 1                              # incrementa a contage externa (do loop do argumento)
+
+        # print de espaçamento
+        print("\n", key, "finalizado!\n\n\n")
 
         # plota o gráfico do fitness máximo por quantidade de sobreviventes por geração
-        plt.plot(n_parents_list, results[key])                                      # plota o gráfico de cada parâmetro vs fitness máximos
+        plt.plot(arguments[key][0], results[key])                                   # plota o gráfico de cada parâmetro vs fitness máximos
         while True:                                                                 # salva o gráfico nos outputs
             try: plt.savefig("outputs/%s_%s.png" % (key, start_time_string)); break # salva em um arquivo com a data de início do processo na pasta outputs
             except FileNotFoundError: os.system("mkdir outputs"); continue          # se a pasta não existir, a cria
         plt.close()                                                                 # finaliza a plotagem
 
-    # remove o executável
+    # remove o executável e printa o timestamp
     os.system("rm program")
+    print(start_time_string)
 
 if __name__  == "__main__":
     main()

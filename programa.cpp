@@ -16,10 +16,10 @@ const int MIN_WEIGHT = 1;       // peso mínimo de cada item
 const int MAX_WEIGHT = 10;      // peso máximo de cada item
 
 // constantes de controle da mochila
-const int BAG_CAPACITY = 100;    // capacidade da mochila
+const int BAG_CAPACITY = 100;   // capacidade da mochila
 
 // constantes de controle da população
-const int POP_SIZE = 6;         // soluções por população
+const int POP_SIZE = 10;        // soluções por população
 
 // constantes de controle da seleção
 const int N_PARENTS = 3;        // quantas soluções são passadas adiante por iteração
@@ -33,6 +33,7 @@ const double MUTATION_RATE = .9;   // probabilidade de ocorrer uma mutação em 
 
 // identidades das funções
 int verify_constants();                                                                                 // verifica a validade das constantes
+void print_constants();                                                                                 // imprime todas as constantes
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);    // calcula o fitness de uma solução
 std::vector<int> make_selection(std::vector<int> fitnesses);                                            // seleciona as N_PARENTS soluções com maior fitness
 std::vector<int> make_crossover(std::vector<int> parent_1, std::vector<int> parent_2);                  // faz invariavelmente o crossover de parent 1 com parent 2
@@ -48,6 +49,9 @@ int main() {
     // verifica se as constantes são válidas
     if (verify_constants()) { return 1; }
 
+    // imprime todas as constantes
+    print_constants();
+
     // gerador de números aleatórios com a SEED definida nas constantes
     srand(SEED);
 
@@ -58,10 +62,9 @@ int main() {
     std::vector<int> item_values(N_ITEMS);  // valores dos itens, será inicializado com números aleatórios
     std::vector<int> item_weights(N_ITEMS); // pesos dos itens, será inicializado com números aleatórios
 
-    // apresenta a capacidade de mochila e o header da apresentação dos itens
-    std::cout << std::endl << "CAPACIDADE DA MOCHILA: " << BAG_CAPACITY << std::endl;
-    std::cout << std::endl << "POSSÍVEIS ITENS" << std::endl;
-    std::cout << "Item\tValor\tPeso" << std::endl;
+    // imprime o header da apresentação dos itens
+    std::cout << std::endl << "ITEMS" << std::endl;
+    std::cout << "ID\tVALUE\tWEIGHT" << std::endl;
 
     // inicialização e apresentação dos itens
     for (int i = 0; i < N_ITEMS; i++) {                                     // percorre elemento por elemento
@@ -82,33 +85,21 @@ int main() {
     // declaração da matriz das populações
     std::vector<std::vector<int>> population(POP_SIZE, std::vector<int>(N_ITEMS));
 
-    // apresenta as dimensões de cada população e o header da apresentação da população em si
-    std::cout << std::endl << "POPULAÇÃO" << std::endl;
-    std::cout << "Tamanho: " << POP_SIZE << std::endl;
-    std::cout << "Itens: " << N_ITEMS << std::endl;
-    std::cout << std::endl << "POPULAÇÃO INICIAL" << std::endl;
-    std::cout << "Solução\tGenes" << std::endl;
-
     // inicializaçao e apresentação da população inicial
     for (int i = 0; i < POP_SIZE; i++) {    // percorre todas as soluções da população
 
-        // apresenta o número da solução
-        std::cout << i << "\t";
-
-        // preenche e apresenta os genes da solução
+        // preenche os genes da população inicial
         for (int j = 0; j < N_ITEMS; j++) { // percorre todos os itens da solução
             int gene_value = rand() % 2;    // 50% de chance de 0, 50% de chance de 1
             population[i][j] = gene_value;  // insere o valor obtido na matriz da população
-            std::cout << gene_value << " "; // apresenta o valor do gene
         }
-
-        // quebra de linha
-        std::cout << std::endl;
     }
 
     // chama a função de execução do algoritmo genético
     std::vector<int> results = optimize(population, item_values, item_weights);
 
+    // imprime os resultados
+    std::cout << std::endl << "RESULTS" << std::endl;
     for (int i = 0; i < GENERATIONS; i++) {
         std::cout << results[i] << std::endl;
     }
@@ -302,17 +293,6 @@ std::vector<int> optimize(
             if (fitnesses[i] > max_fitness) { max_fitness = fitnesses[i]; }             // se for maior que o máximo até agora, atualiza o valor do máximo
         }
 
-        // ### TESTE #########################
-        std::cout << std::endl << generation << std::endl;
-        for (int i = 0; i < POP_SIZE; i++) {
-            for (int j = 0; j < N_ITEMS; j++) {
-                std::cout << latest_generation[i][j] << " ";
-            }
-            std::cout << fitnesses[i];
-            std::cout << std::endl;
-        }
-        // ### TESTE #########################
-
         // adiciona o fitness mais alto ao vetor dos resultados
         results[generation] = max_fitness;
 
@@ -378,4 +358,23 @@ std::vector<int> optimize(
     }
 
     return results;
+}
+
+void print_constants() {
+    // imprime todas as constantes
+
+    std::cout << "SEED " << SEED << std::endl;
+    std::cout << "GENERATIONS " << GENERATIONS << std::endl;
+    std::cout << "N_ITEMS " << N_ITEMS << std::endl;
+    std::cout << "MIN_VALUE " << MIN_VALUE << std::endl;
+    std::cout << "MAX_VALUE " << MAX_VALUE << std::endl;
+    std::cout << "MIN_WEIGHT " << MIN_WEIGHT << std::endl;
+    std::cout << "MAX_WEIGHT " << MAX_WEIGHT << std::endl;
+    std::cout << "BAG_CAPACITY " << BAG_CAPACITY << std::endl;
+    std::cout << "POP_SIZE " << POP_SIZE << std::endl;
+    std::cout << "N_PARENTS " << N_PARENTS << std::endl;
+    std::cout << "CROSSOVER_RATE " << CROSSOVER_RATE << std::endl;
+    std::cout << "CROSSOVER_POINT " << CROSSOVER_POINT << std::endl;
+    std::cout << "MUTATION_RATE " << MUTATION_RATE << std::endl;
+
 }

@@ -9,14 +9,14 @@ const int SEED = 827659;        // seed do gerador de números pseudoaleatórios
 const int GENERATIONS = 100;    // quantidade de vezes para rodar o algoritmo
 
 // constantes de controle dos itens
-const int N_ITEMS = 10;         // quantidade de itens
+const int N_ITEMS = 40;         // quantidade de itens
 const int MIN_VALUE = 1;        // valor mínimo de cada item
 const int MAX_VALUE = 40;       // valor máximo de cada item
 const int MIN_WEIGHT = 1;       // peso mínimo de cada item
 const int MAX_WEIGHT = 10;      // peso máximo de cada item
 
 // constantes de controle da mochila
-const int BAG_CAPACITY = 20;    // capacidade da mochila
+const int BAG_CAPACITY = 100;    // capacidade da mochila
 
 // constantes de controle da população
 const int POP_SIZE = 6;         // soluções por população
@@ -26,10 +26,10 @@ const int N_PARENTS = 3;        // quantas soluções são passadas adiante por 
 
 // constantes de controle do crossover
 const double CROSSOVER_RATE = 0.8;  // probabilidade de ocorrer crossover para cada par de pais
-const int CROSSOVER_POINT = 5;      // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
+const int CROSSOVER_POINT = 20;     // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
 
 // constantes de controle da mutação
-const double MUTATION_RATE = 0.15;  // probabilidade de ocorrer uma mutação em um offspring
+const double MUTATION_RATE = .9;   // probabilidade de ocorrer uma mutação em um offspring
 
 // identidades das funções
 int verify_constants();                                                                                 // verifica a validade das constantes
@@ -37,7 +37,7 @@ int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::ve
 std::vector<int> make_selection(std::vector<int> fitnesses);                                            // seleciona as N_PARENTS soluções com maior fitness
 std::vector<int> make_crossover(std::vector<int> parent_1, std::vector<int> parent_2);                  // faz invariavelmente o crossover de parent 1 com parent 2
 std::vector<int> make_mutation(std::vector<int> solution);                                              // faz invariavelmente uma mutação na solution
-std::vector<std::vector<int>> optimize(                                                                 // função de rodar o algoritmo genético
+std::vector<int> optimize(                                                                              // função de rodar o algoritmo genético
     std::vector<std::vector<int>> initial_population,
     std::vector<int> item_values,
     std::vector<int> item_weights
@@ -107,7 +107,11 @@ int main() {
     }
 
     // chama a função de execução do algoritmo genético
-    std::vector<std::vector<int>> results = optimize(population, item_values, item_weights);
+    std::vector<int> results = optimize(population, item_values, item_weights);
+
+    for (int i = 0; i < GENERATIONS; i++) {
+        std::cout << results[i] << std::endl;
+    }
 }
 
 int verify_constants() {
@@ -244,7 +248,7 @@ std::vector<int> make_mutation(std::vector<int> solution) {
     return result;
 }
 
-std::vector<std::vector<int>> optimize(
+std::vector<int> optimize(
     std::vector<std::vector<int>> initial_population,
     std::vector<int> values,
     std::vector<int> weights
@@ -256,21 +260,30 @@ std::vector<std::vector<int>> optimize(
     // - values: vetor dos valores dos itens
     // - weights: vetor dos pesos dos itens
     //
-    // retorna: matriz da última geração
+    // retorna: vetor das maiores fitness de cada geração
     //
     // etapas:
-    // - 1: criação da matriz dos resultados
+    // - 0: criação do vetor dos resultados
+    // - 1: criação da matriz da última geração
     // - 2: loop de evolução
-    //      - 2.1: calculo do fitness
+    //      - 2.1: calculo do fitness e inclusão no vetor dos resultados
     //      - 2.2: seleção
     //      - 2.3: crossover
     //      - 2.4: mutação
+    //      - 2.5: cópia do vetor da nova geração para o da última geração
+
+    //== ETAPA 0 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 0
+
+    // criação do vetor dos resultados
+    std::vector<int> results(GENERATIONS);
 
     //== ETAPA 1 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 1
-    std::vector<std::vector<int>> result(POP_SIZE, std::vector<int>(N_ITEMS));
-    for (int i = 0; i < POP_SIZE; i++) {                // para toda solução na população
-        for (int j = 0; j < N_ITEMS; j++) {             // para todo gene na solução
-            result[i][j] = initial_population[i][j];    // copia o gene da solução da população inicial
+    
+    // copia a matriz das soluçõs inicias para a matriz da última geração
+    std::vector<std::vector<int>> latest_generation(POP_SIZE, std::vector<int>(N_ITEMS));
+    for (int i = 0; i < POP_SIZE; i++) {                        // para toda solução na população
+        for (int j = 0; j < N_ITEMS; j++) {                     // para todo gene na solução
+            latest_generation[i][j] = initial_population[i][j]; // copia o gene da solução da população inicial
         }
     }
 
@@ -282,10 +295,26 @@ std::vector<std::vector<int>> optimize(
         // declara o vetor dos valores de fitness das soluções da população atual
         std::vector<int> fitnesses(POP_SIZE);
 
-        // cálculo do fitness
-        for (int i = 0; i < POP_SIZE; i++) {                                // percorre todas as soluções atuais
-            fitnesses[i] = calculate_fitness(values, weights, result[i]);   // calcula o fitness de cada uma
+        // cálculo do fitness e do valor mais alto
+        int max_fitness = -1;                                                           // fitness mais alto da população
+        for (int i = 0; i < POP_SIZE; i++) {                                            // percorre todas as soluções atuais
+            fitnesses[i] = calculate_fitness(values, weights, latest_generation[i]);    // calcula o fitness de cada uma
+            if (fitnesses[i] > max_fitness) { max_fitness = fitnesses[i]; }             // se for maior que o máximo até agora, atualiza o valor do máximo
         }
+
+        // ### TESTE #########################
+        std::cout << std::endl << generation << std::endl;
+        for (int i = 0; i < POP_SIZE; i++) {
+            for (int j = 0; j < N_ITEMS; j++) {
+                std::cout << latest_generation[i][j] << " ";
+            }
+            std::cout << fitnesses[i];
+            std::cout << std::endl;
+        }
+        // ### TESTE #########################
+
+        // adiciona o fitness mais alto ao vetor dos resultados
+        results[generation] = max_fitness;
 
         // ETAPA 2.2 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.2
         
@@ -293,19 +322,12 @@ std::vector<std::vector<int>> optimize(
         std::vector<int> survivors = make_selection(fitnesses);                             // faz a seleção com base nos valores de fitness
         std::vector<std::vector<int>> new_generation(POP_SIZE, std::vector<int>(N_ITEMS));  // declara a matriz da nova geração
 
-        // ### TESTE ######################
-        for (int i = 0; i < POP_SIZE; i++) {
-            std::cout << survivors[i] << " ";
-        }
-        std::cout << std::endl;
-        // ### TESTE ######################
-
         // preenche a matriz nova com os sobreviventes no começo dela
-        int survivors_included = 0;                                     // quantidade de sobreviventes que já foram inclusos na nova matriz
-        for (int i = 0; i < POP_SIZE; i++) {                            // percorre todas as soluções
-            if (survivors[i] == 0) { continue; }                        // se não tiver sobrevivido, pula
-            for (int j = 0; j < N_ITEMS; j++) {                         // percorre todos os genes da solução
-                new_generation[survivors_included][j] = result[i][j];   // copia para a primeira linha disponível da nova matriz
+        int survivors_included = 0;                                                 // quantidade de sobreviventes que já foram inclusos na nova matriz
+        for (int i = 0; i < POP_SIZE; i++) {                                        // percorre todas as soluções
+            if (survivors[i] == 0) { continue; }                                    // se não tiver sobrevivido, pula
+            for (int j = 0; j < N_ITEMS; j++) {                                     // percorre todos os genes da solução
+                new_generation[survivors_included][j] = latest_generation[i][j];    // copia para a primeira linha disponível da nova matriz
             }
             survivors_included++;       // incrementa a quantidade de sobreviventes que já foram inclusos na nova matriz
         }
@@ -328,10 +350,6 @@ std::vector<std::vector<int>> optimize(
                 // índice dos pais
                 int parent_1_index = i % N_PARENTS;         // índice do pai da esquerda, varia de 0 a N_PARENTS - 1
                 int parent_2_index = (i + 1) % N_PARENTS;   // índice do pai da direita, sempre 1 a mais que o da esquerda, ou 0 caso o da esquerda seja N_PARENTS - 1
-
-                // ### TESTE ###########################
-                std::cout << "crossed " << parent_1_index << " " << parent_2_index << std::endl;
-                // ### TESTE ###########################
                 
                 // adiciona a nova solução à matriz da nova geração e incrementa a contagem de filhos adicionados
                 new_generation[N_PARENTS + offsprings_added] = make_crossover(new_generation[parent_1_index], new_generation[parent_2_index]);
@@ -339,16 +357,6 @@ std::vector<std::vector<int>> optimize(
             }
             i++;    // incrementa a contagem independentemente do crossover ter, ou não, ocorrido
         }
-
-        // ### TESTE #########################
-        std::cout << std::endl << "Pré mutação: " << std::endl;
-        for (int i = 0; i < POP_SIZE; i++) {
-            for (int j = 0; j < N_ITEMS; j++) {
-                std::cout << new_generation[i][j] << " ";
-            }
-            std::cout << std::endl;
-        }
-        // ### TESTE #########################
 
         // ETAPA 2.4 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.4
 
@@ -359,18 +367,15 @@ std::vector<std::vector<int>> optimize(
             new_generation[i] = make_mutation(new_generation[i]);   // se for, gera uma mutação em um gene aleatório
         }
 
-        // ### TESTE #########################
-        std::cout << std::endl << "Pós mutação: " << std::endl;
+        // ETAPA 2.5 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.5
+
+        // copia a nova geração para a última geração
         for (int i = 0; i < POP_SIZE; i++) {
             for (int j = 0; j < N_ITEMS; j++) {
-                std::cout << new_generation[i][j] << " ";
+                latest_generation[i][j] = new_generation[i][j];
             }
-            std::cout << std::endl;
         }
-        // ### TESTE #########################
-
-        break;
     }
 
-    return result;
+    return results;
 }

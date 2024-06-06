@@ -24,7 +24,7 @@ N_SEEDS      = 10000    # número de seeds diferentes para testar por parâmetro
 N_VARIATIONS = 32       # quantidade de valores para testar na taxa de crossover e de mutação
 
 # constantes do algoritmo genético
-N_GENERATIONS = 50      # número de gerações por execução
+N_GENERATIONS = 30      # número de gerações por execução
 POP_SIZE      = 32      # quantidade de soluções por geração
 
 # constantes extra

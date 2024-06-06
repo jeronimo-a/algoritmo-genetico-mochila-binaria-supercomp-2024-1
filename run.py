@@ -18,14 +18,15 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 
 # constantes de controle
-N_SEEDS = 10000             # número de seeds diferentes para testar por parâmetro
+N_SEEDS = 2000              # número de seeds diferentes para testar por parâmetro
 N_VARIATIONS = 100          # quantidade de valores para testar na taxa de crossover e de mutação
 GENERATIONS = 30            # número de gerações por execução
 POP_SIZE = 8                # quantidade de soluções por geração
 
 # constantes extra
-EXECUTABLE_NAME = "program"     # nome do executável do algoritmo
-N_PARENTS_NAME = "N_PARENTS"
+SOURCE_CODE_LOCATION = "program.cpp"    # localização do código fonte
+EXECUTABLE_NAME = "program"             # nome do executável do algoritmo
+N_PARENTS_NAME = "N_PARENTS"            # nome do parâmetro N_PARENTS
 
 def main():
 
@@ -34,7 +35,7 @@ def main():
     start_time_string = start_time.strftime("%Y%m%d%H%M%S")
 
     # compila o programa
-    os.system("g++ -o program program.cpp")
+    os.system("g++ -o %s %s" % (EXECUTABLE_NAME, SOURCE_CODE_LOCATION))
     
     # argumentos dos parâmetros
     seeds_list = list(range(0, N_SEEDS * 1000))                 # lista base das seeds, será embaralhada
@@ -49,12 +50,7 @@ def main():
 
     # dicionário dos argumentos para deixar o código menos repetitivo
     arguments = {
-        N_PARENTS_NAME: n_parents_list,
-    }
-
-    # dicionário dos argumentos de chamada do script formatados
-    subprocess_arguments = {
-        N_PARENTS_NAME: ([str(GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3)
+        N_PARENTS_NAME: (n_parents_list, [str(GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3),
     }
 
     # embaralha a lista de seeds e reduz o tamanho
@@ -70,7 +66,7 @@ def main():
         results[key] = list()
 
         # loop de variação da quantidade de soluções sobreviventes por geração
-        for argument in arguments[key]:
+        for argument in arguments[key][0]:
 
             # verbose para feedback de execução
             print(key + ": %d/%d" % (argument, POP_SIZE))
@@ -87,13 +83,13 @@ def main():
                     print("\tSEED: %d/%d" % (count + 1, len(seeds_list)))   # da sinal de vida
 
                 # define os argumentos do subprocess (de chamada do algoritmo)
-                seed_index = subprocess_arguments[key][1]                       # pega o índice do argumento da seed
-                argument_index = subprocess_arguments[key][2]                   # pega o índice do argumento em questão
-                subprocess_arguments[key][0][seed_index] = str(seed)            # inclui a seed nos argumentos
-                subprocess_arguments[key][0][argument_index] = str(argument)    # inclui o argumento em questão nos argumentos
+                seed_index = arguments[key][2]                       # pega o índice do argumento da seed
+                argument_index = arguments[key][3]                   # pega o índice do argumento em questão
+                arguments[key][1][seed_index] = str(seed)            # inclui a seed nos argumentos
+                arguments[key][1][argument_index] = str(argument)    # inclui o argumento em questão nos argumentos
 
                 # cria um subprocesso de chamada do algoritmo genético
-                subprocess_results = subprocess.run(["./" + EXECUTABLE_NAME] + subprocess_arguments[key][0], capture_output=True, text=True)
+                subprocess_results = subprocess.run(["./" + EXECUTABLE_NAME] + arguments[key][1], capture_output=True, text=True)
 
                 # extrai a fitness máxima (final) da iteração e incrementa a contagem
                 max_fitness = int(subprocess_results.stdout.split()[-1])    # extrai a fitness máxima (final) da iteração

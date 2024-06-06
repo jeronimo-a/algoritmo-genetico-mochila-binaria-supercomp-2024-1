@@ -20,7 +20,7 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 
 # constantes de controle
-N_SEEDS      = 100    # número de seeds diferentes para testar por parâmetro
+N_SEEDS      = 10000    # número de seeds diferentes para testar por parâmetro
 N_VARIATIONS = 50       # quantidade de valores para testar na taxa de crossover e de mutação
 GENERATIONS  = 30       # número de gerações por execução
 POP_SIZE     = 16       # quantidade de soluções por geração

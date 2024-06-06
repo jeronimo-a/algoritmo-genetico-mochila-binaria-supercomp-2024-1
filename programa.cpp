@@ -3,7 +3,7 @@
 #include <vector>
 
 // constantes de controle da aleatoriedade
-const int SEED = 123133;        // seed do gerador de números pseudoaleatórios
+const int SEED = 827659;        // seed do gerador de números pseudoaleatórios
 
 // constantes de controle geral
 const int GENERATIONS = 100;    // quantidade de vezes para rodar o algoritmo
@@ -16,17 +16,17 @@ const int MIN_WEIGHT = 1;       // peso mínimo de cada item
 const int MAX_WEIGHT = 10;      // peso máximo de cada item
 
 // constantes de controle da mochila
-const int BAG_CAPACITY = 20;     // capacidade da mochila
+const int BAG_CAPACITY = 20;    // capacidade da mochila
 
 // constantes de controle da população
-const int POP_SIZE = 16;        // soluções por população
+const int POP_SIZE = 6;         // soluções por população
 
 // constantes de controle da seleção
-const int N_PARENTS = 8;        // quantas soluções são passadas adiante por iteração
+const int N_PARENTS = 3;        // quantas soluções são passadas adiante por iteração
 
 // constantes de controle do crossover
 const double CROSSOVER_RATE = 0.8;  // probabilidade de ocorrer crossover para cada par de pais
-const int CROSSOVER_POINT = 8;      // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
+const int CROSSOVER_POINT = 5;      // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
 
 // constantes de controle da mutação
 const double MUTATION_RATE = 0.15;  // probabilidade de ocorrer uma mutação em um offspring
@@ -293,6 +293,13 @@ std::vector<std::vector<int>> optimize(
         std::vector<int> survivors = make_selection(fitnesses);                             // faz a seleção com base nos valores de fitness
         std::vector<std::vector<int>> new_generation(POP_SIZE, std::vector<int>(N_ITEMS));  // declara a matriz da nova geração
         
+        // ### TESTE ######################
+        for (int i = 0; i < POP_SIZE; i++) {
+            std::cout << survivors[i] << " ";
+        }
+        std::cout << std::endl;
+        // ### TESTE ######################
+
         // preenche a matriz nova com os sobreviventes no começo dela
         int survivors_included = 0;                                     // quantidade de sobreviventes que já foram inclusos na nova matriz
         for (int i = 0; i < POP_SIZE; i++) {                            // percorre todas as soluções
@@ -305,11 +312,44 @@ std::vector<std::vector<int>> optimize(
 
         // ETAPA 2.3 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.3
 
-        
+        // variáveis auxiliares do loop
+        int i = 0;                  // variável de contagem, incrementada a cada loop, usada para determinar os índices dos pais
+        int offsprings_added = 0;   // quantidade de filhos já adicionados à matriz da nova geração
 
+        // loop de crossover
+        while (offsprings_added < POP_SIZE - N_PARENTS) {
+            
+            // gera um número aleatório que determina se o crossover será realizado com esses pais
+            int random_number = rand() % 100;
+
+            // realiza o crossover caso o valor aleatório seja menor que a chance de ocorrer o crossover
+            if (random_number < CROSSOVER_RATE * 100) {
+
+                // índice dos pais
+                int parent_1_index = i % N_PARENTS;         // índice do pai da esquerda, varia de 0 a N_PARENTS - 1
+                int parent_2_index = (i + 1) % N_PARENTS;   // índice do pai da direita, sempre 1 a mais que o da esquerda, ou 0 caso o da esquerda seja N_PARENTS - 1
+
+                // ### TESTE ###########################
+                std::cout << "crossed " << parent_1_index << " " << parent_2_index << std::endl;
+                // ### TESTE ###########################
+                
+                // adiciona a nova solução à matriz da nova geração e incrementa a contagem de filhos adicionados
+                new_generation[N_PARENTS + offsprings_added] = make_crossover(new_generation[parent_1_index], new_generation[parent_2_index]);
+                offsprings_added++;
+            }
+            i++;    // incrementa a contagem independentemente do crossover ter, ou não, ocorrido
+        }
+
+        // ### TESTE ###########################
+        for (int i = 0; i < POP_SIZE; i++) {
+            for (int j = 0; j < N_ITEMS; j++) {
+                std::cout << new_generation[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }
+        // ### TESTE ###########################
 
         break;
-        
     }
 
     return result;

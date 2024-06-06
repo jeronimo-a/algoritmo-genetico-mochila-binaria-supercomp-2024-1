@@ -363,18 +363,17 @@ std::vector<int> optimize(
 void print_constants() {
     // imprime todas as constantes
 
-    std::cout << "SEED " << SEED << std::endl;
-    std::cout << "GENERATIONS " << GENERATIONS << std::endl;
-    std::cout << "N_ITEMS " << N_ITEMS << std::endl;
-    std::cout << "MIN_VALUE " << MIN_VALUE << std::endl;
-    std::cout << "MAX_VALUE " << MAX_VALUE << std::endl;
-    std::cout << "MIN_WEIGHT " << MIN_WEIGHT << std::endl;
-    std::cout << "MAX_WEIGHT " << MAX_WEIGHT << std::endl;
-    std::cout << "BAG_CAPACITY " << BAG_CAPACITY << std::endl;
-    std::cout << "POP_SIZE " << POP_SIZE << std::endl;
-    std::cout << "N_PARENTS " << N_PARENTS << std::endl;
-    std::cout << "CROSSOVER_RATE " << CROSSOVER_RATE << std::endl;
-    std::cout << "CROSSOVER_POINT " << CROSSOVER_POINT << std::endl;
-    std::cout << "MUTATION_RATE " << MUTATION_RATE << std::endl;
-
+    std::cout << "SEED\t\t" << SEED << std::endl;
+    std::cout << "GENERATIONS\t" << GENERATIONS << std::endl;
+    std::cout << "N_ITEMS\t\t" << N_ITEMS << std::endl;
+    std::cout << "MIN_VALUE\t" << MIN_VALUE << std::endl;
+    std::cout << "MAX_VALUE\t" << MAX_VALUE << std::endl;
+    std::cout << "MIN_WEIGHT\t" << MIN_WEIGHT << std::endl;
+    std::cout << "MAX_WEIGHT\t" << MAX_WEIGHT << std::endl;
+    std::cout << "BAG_CAPACITY\t" << BAG_CAPACITY << std::endl;
+    std::cout << "POP_SIZE\t" << POP_SIZE << std::endl;
+    std::cout << "N_PARENTS\t" << N_PARENTS << std::endl;
+    std::cout << "CROSSOVER_RATE\t" << CROSSOVER_RATE << std::endl;
+    std::cout << "CROSSOVER_POINT\t" << CROSSOVER_POINT << std::endl;
+    std::cout << "MUTATION_RATE\t" << MUTATION_RATE << std::endl;
 }

@@ -5,6 +5,9 @@
 // constantes de controle da aleatoriedade
 const int SEED = 123133;        // seed do gerador de números pseudoaleatórios
 
+// constantes de controle geral
+const int GENERATIONS = 100;    // quantidade de vezes para rodar o algoritmo
+
 // constantes de controle dos itens
 const int N_ITEMS = 10;         // quantidade de itens
 const int MIN_VALUE = 1;        // valor mínimo de cada item
@@ -13,7 +16,7 @@ const int MIN_WEIGHT = 1;       // peso mínimo de cada item
 const int MAX_WEIGHT = 10;      // peso máximo de cada item
 
 // constantes de controle da mochila
-const int BAG_CAPACITY = 40;    // capacidade da mochila
+const int BAG_CAPACITY = 5;     // capacidade da mochila
 
 // constantes de controle da população
 const int POP_SIZE = 16;        // soluções por população
@@ -28,12 +31,17 @@ const int CROSSOVER_POINT = 8;      // índice do gene até o qual incluir genes
 // constantes de controle da mutação
 const double MUTATION_RATE = 0.15;  // probabilidade de ocorrer uma mutação em um offspring
 
-// funções
+// identidades das funções
 int verify_constants();                                                                                 // verifica a validade das constantes
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);    // calcula o fitness de uma solução
 std::vector<int> make_selection(std::vector<int> fitnesses);                                            // seleciona as N_PARENTS soluções com maior fitness
 std::vector<int> make_crossover(std::vector<int> parent_1, std::vector<int> parent_2);                  // faz invariavelmente o crossover de parent 1 com parent 2
 std::vector<int> make_mutation(std::vector<int> solution);                                              // faz invariavelmente uma mutação na solution
+std::vector<std::vector<int>> optimize(                                                                 // função de rodar o algoritmo genético
+    std::vector<std::vector<int>> initial_population,
+    std::vector<int> item_values,
+    std::vector<int> item_weights
+);
 
 int main() {
 
@@ -97,6 +105,9 @@ int main() {
         // quebra de linha
         std::cout << std::endl;
     }
+
+    // chama a função de execução do algoritmo genético
+    std::vector<std::vector<int>> results = optimize(population, item_values, item_weights);
 }
 
 int verify_constants() {
@@ -228,6 +239,54 @@ std::vector<int> make_mutation(std::vector<int> solution) {
         if (i == random_index) {
             result[i] = (result[i] + 1) % 2;
         }
+    }
+
+    return result;
+}
+
+std::vector<std::vector<int>> optimize(
+    std::vector<std::vector<int>> initial_population,
+    std::vector<int> values,
+    std::vector<int> weights
+) {
+    // executa o algoritmo genético
+    //
+    // recebe:
+    // - initial_population: matriz da população inicial
+    // - values: vetor dos valores dos itens
+    // - weights: vetor dos pesos dos itens
+    //
+    // retorna: matriz da última geração
+    //
+    // etapas:
+    // - 1: criação da matriz dos resultados
+    // - 2: loop de evolução
+    //      - 2.1: calculo do fitness
+    //      - 2.2: seleção
+    //      - 2.3: crossover
+    //      - 2.4: mutação
+
+    //== ETAPA 1 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 1
+    std::vector<std::vector<int>> result(POP_SIZE, std::vector<int>(N_ITEMS));
+    for (int i = 0; i < POP_SIZE; i++) {                // para toda solução na população
+        for (int j = 0; j < N_ITEMS; j++) {             // para todo gene na solução
+            result[i][j] = initial_population[i][j];    // copia o gene da solução da população inicial
+        }
+    }
+
+    //== ETAPA 2 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2
+    for (int generation = 0; generation < GENERATIONS; generation++) {
+        
+        // ETAPA 2.1 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.1
+        std::vector<int> fitnesses(POP_SIZE);
+        for (int i = 0; i < POP_SIZE; i++) {
+            fitnesses[i] = calculate_fitness(values, weights, result[i]);
+            std::cout << fitnesses[i] << " ";
+        }
+        std::cout << std::endl;
+
+        break;
+        
     }
 
     return result;

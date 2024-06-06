@@ -227,7 +227,7 @@ std::vector<int> make_mutation(std::vector<int> solution) {
     // recebe:
     // - solution: vetor dos genes da solução a ser mutada
     //
-    // retorna: vetor gos genes da solução mutados
+    // retorna: vetor dos genes da solução mutados
 
     // declara o vetor da solução com mutação e gera um índice aleatório
     std::vector<int> result(N_ITEMS);
@@ -266,7 +266,7 @@ std::vector<std::vector<int>> optimize(
     //      - 2.3: crossover
     //      - 2.4: mutação
 
-    //== ETAPA 1 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 1
+    //== ETAPA 1 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 1
     std::vector<std::vector<int>> result(POP_SIZE, std::vector<int>(N_ITEMS));
     for (int i = 0; i < POP_SIZE; i++) {                // para toda solução na população
         for (int j = 0; j < N_ITEMS; j++) {             // para todo gene na solução
@@ -274,10 +274,10 @@ std::vector<std::vector<int>> optimize(
         }
     }
 
-    //== ETAPA 2 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2
+    //== ETAPA 2 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2
     for (int generation = 0; generation < GENERATIONS; generation++) {
         
-        // ETAPA 2.1 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.1
+        // ETAPA 2.1 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.1
 
         // declara o vetor dos valores de fitness das soluções da população atual
         std::vector<int> fitnesses(POP_SIZE);
@@ -287,12 +287,12 @@ std::vector<std::vector<int>> optimize(
             fitnesses[i] = calculate_fitness(values, weights, result[i]);   // calcula o fitness de cada uma
         }
 
-        // ETAPA 2.2 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.2
+        // ETAPA 2.2 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.2
         
         // faz a seleção e cria uma nova matriz com apenas os sobreviventes
         std::vector<int> survivors = make_selection(fitnesses);                             // faz a seleção com base nos valores de fitness
         std::vector<std::vector<int>> new_generation(POP_SIZE, std::vector<int>(N_ITEMS));  // declara a matriz da nova geração
-        
+
         // ### TESTE ######################
         for (int i = 0; i < POP_SIZE; i++) {
             std::cout << survivors[i] << " ";
@@ -310,7 +310,7 @@ std::vector<std::vector<int>> optimize(
             survivors_included++;       // incrementa a quantidade de sobreviventes que já foram inclusos na nova matriz
         }
 
-        // ETAPA 2.3 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.3
+        // ETAPA 2.3 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.3
 
         // variáveis auxiliares do loop
         int i = 0;                  // variável de contagem, incrementada a cada loop, usada para determinar os índices dos pais
@@ -340,14 +340,34 @@ std::vector<std::vector<int>> optimize(
             i++;    // incrementa a contagem independentemente do crossover ter, ou não, ocorrido
         }
 
-        // ### TESTE ###########################
+        // ### TESTE #########################
+        std::cout << std::endl << "Pré mutação: " << std::endl;
         for (int i = 0; i < POP_SIZE; i++) {
             for (int j = 0; j < N_ITEMS; j++) {
                 std::cout << new_generation[i][j] << " ";
             }
             std::cout << std::endl;
         }
-        // ### TESTE ###########################
+        // ### TESTE #########################
+
+        // ETAPA 2.4 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.4
+
+        // loop de mutação das novas soluções
+        for (int i = N_PARENTS; i < POP_SIZE; i++) {                // percorre todas as novas soluções
+            int random_number = rand() % 100;                       // gera um número aleatório para decidir se gera ou não mutação
+            if (random_number >= MUTATION_RATE * 100) { continue; } // se não for pra gerar, pula essa solução
+            new_generation[i] = make_mutation(new_generation[i]);   // se for, gera uma mutação em um gene aleatório
+        }
+
+        // ### TESTE #########################
+        std::cout << std::endl << "Pós mutação: " << std::endl;
+        for (int i = 0; i < POP_SIZE; i++) {
+            for (int j = 0; j < N_ITEMS; j++) {
+                std::cout << new_generation[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }
+        // ### TESTE #########################
 
         break;
     }

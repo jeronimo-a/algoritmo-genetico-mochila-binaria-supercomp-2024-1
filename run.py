@@ -19,11 +19,13 @@ import numpy as np
 from datetime import datetime
 from matplotlib import pyplot as plt
 
-# constantes de controle
+# constantes de precisão e resolução dos testes
 N_SEEDS      = 10000    # número de seeds diferentes para testar por parâmetro
-N_VARIATIONS = 50       # quantidade de valores para testar na taxa de crossover e de mutação
-GENERATIONS  = 30       # número de gerações por execução
-POP_SIZE     = 16       # quantidade de soluções por geração
+N_VARIATIONS = 32       # quantidade de valores para testar na taxa de crossover e de mutação
+
+# constantes do algoritmo genético
+N_GENERATIONS = 50      # número de gerações por execução
+POP_SIZE      = 32      # quantidade de soluções por geração
 
 # constantes extra
 SOURCE_CODE_LOCATION = "program.cpp"    # localização do código fonte
@@ -40,7 +42,7 @@ def main():
     execution_name = "%d_%s" % (N_SEEDS, start_time_string)
 
     # print de verbose
-    print("\nINICIANDO SIMULAÇÃO %s" % execution_name)
+    print("\nSIMULAÇÃO %s INICIADA" % execution_name)
 
     # compila o programa
     os.system("g++ -o %s %s" % (EXECUTABLE_NAME, SOURCE_CODE_LOCATION))
@@ -63,9 +65,9 @@ def main():
 
     # dicionário dos argumentos para deixar o código menos repetitivo
     arguments = {
-        N_PARENTS_NAME      : (n_parents_list, [str(GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3, "g"),
-        MUTATION_RATE_NAME  : (mutation_rate_list, [str(GENERATIONS), None, str(POP_SIZE), str(n_parents_neutral), str(crossover_rate_neutral), None], 1, 5, "r"),
-        CROSSOVER_RATE_NAME : (crossover_rate_list, [str(GENERATIONS), None, str(POP_SIZE), str(n_parents_neutral), None, str(mutation_rate_neutral)], 1, 4, "b")
+        N_PARENTS_NAME      : (n_parents_list, [str(N_GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3, "g"),
+        MUTATION_RATE_NAME  : (mutation_rate_list, [str(N_GENERATIONS), None, str(POP_SIZE), str(n_parents_neutral), str(crossover_rate_neutral), None], 1, 5, "r"),
+        CROSSOVER_RATE_NAME : (crossover_rate_list, [str(N_GENERATIONS), None, str(POP_SIZE), str(n_parents_neutral), None, str(mutation_rate_neutral)], 1, 4, "b")
     }
 
     # embaralha a lista de seeds e reduz o tamanho
@@ -79,7 +81,7 @@ def main():
     for key in arguments.keys():
 
         # print de feedback de execução, inicialização dos resultados do parâmetro e variável de contagem do loop externo
-        print("\t" + key + "\n")
+        print("\tPARÂMETRO", key, "INICIADO\n")
         results[key] = list()
         count_out = 0
 
@@ -115,9 +117,6 @@ def main():
                 max_fitnesses.append(max_fitness)                           # adiciona a fitness máxima da iteração à lista de fitness máximas da seed
                 count_in += 1                                               # incrementa a contagem do loop de seeds
 
-            # print de feedback de execução
-            print("\t\t\tSEED: %d/%d" % (N_SEEDS, N_SEEDS))
-
             # calcula a média das fitness máximas para a seed e armazena no dicionário dos resultados e incrementa a contagem externa
             average_fitness = np.mean(max_fitnesses)    # calcula a média
             results[key].append(average_fitness)        # adiciona ao dicionário de resultados
@@ -125,12 +124,22 @@ def main():
 
         # verbose para feedback de execução
         print("\t\t" + key + ": %d/%d\n" % (len(arguments[key][0]), len(arguments[key][0])))
-        print("\t\t" + key, "finalizado!\n")
+        print("\tPARÂMETRO", key, "FINALIZADO\n")
 
-        # plota o gráfico do fitness máximo por quantidade de sobreviventes por geração
-        plt.plot(arguments[key][0], results[key], c=arguments[key][4])  # plota o gráfico de cada parâmetro vs fitness máximos
-        plt.savefig("outputs/%s/%s.png" % (execution_name, key))        # salva em um arquivo com o nome da key no diretório da execução dentro do diretório outputs
-        plt.close()                                                     # finaliza a plotagem
+        # plota o gráfico do fitness máximo médio por seed em função do parâmetro em questão
+        plt.plot(arguments[key][0], results[key], c=arguments[key][4])          # plota o gráfico de cada parâmetro vs fitness máximos
+        plt.title("Fitness máximo médio por seed em função do valor de " + key) # define o título do gráfico
+        plt.xlabel(key)                                                         # define o label das abscissas
+        plt.ylabel("Fitness")                                                   # define o label das ordenadas
+
+        # inclui os parâmetros da simulação
+        text_pos = (np.min(arguments[key][0]), np.min(results[key]))                            # posição dos parâmetros no gráfico
+        text = "GENERATIONS: %d\nSEEDS: %d\nPOP_SIZE: %d" % (N_GENERATIONS, N_SEEDS, POP_SIZE)  # texto dos parâmetros
+        plt.text(text_pos[0], text_pos[1], text, fontsize=8, color='black')                     # inclui o texto no gráfico
+
+        # salva o arquivo o finaliza o plot
+        plt.savefig("outputs/%s/%s.png" % (execution_name, key))                # salva em um arquivo com o nome da key no diretório da execução dentro do diretório outputs
+        plt.close()                                                             # finaliza a plotagem
 
     # remove o executável
     os.system("rm program")

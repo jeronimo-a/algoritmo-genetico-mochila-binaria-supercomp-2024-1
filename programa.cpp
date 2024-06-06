@@ -16,7 +16,7 @@ const int MIN_WEIGHT = 1;       // peso mínimo de cada item
 const int MAX_WEIGHT = 10;      // peso máximo de cada item
 
 // constantes de controle da mochila
-const int BAG_CAPACITY = 5;     // capacidade da mochila
+const int BAG_CAPACITY = 20;     // capacidade da mochila
 
 // constantes de controle da população
 const int POP_SIZE = 16;        // soluções por população
@@ -278,12 +278,46 @@ std::vector<std::vector<int>> optimize(
     for (int generation = 0; generation < GENERATIONS; generation++) {
         
         // ETAPA 2.1 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.1
+
+        // declara o vetor dos valores de fitness das soluções da população atual
         std::vector<int> fitnesses(POP_SIZE);
+
+        // cálculo do fitness
+        for (int i = 0; i < POP_SIZE; i++) {                                // percorre todas as soluções atuais
+            fitnesses[i] = calculate_fitness(values, weights, result[i]);   // calcula o fitness de cada uma
+        }
+
+        // ETAPA 2.2 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.2
+        
+        // faz a seleção e cria uma nova matriz com apenas os sobreviventes
+        std::vector<int> survivors = make_selection(fitnesses);                             // faz a seleção com base nos valores de fitness
+        std::vector<std::vector<int>> new_generation(POP_SIZE, std::vector<int>(N_ITEMS));  // declara a matriz da nova geração
+
+        // ### TESTES #############################
         for (int i = 0; i < POP_SIZE; i++) {
-            fitnesses[i] = calculate_fitness(values, weights, result[i]);
-            std::cout << fitnesses[i] << " ";
+            std::cout << survivors[i] << " ";
         }
         std::cout << std::endl;
+        // ### TESTES #############################
+        
+        // preenche a matriz nova com os sobreviventes no começo dela
+        int survivors_included = 0;                                     // quantidade de sobreviventes que já foram inclusos na nova matriz
+        for (int i = 0; i < POP_SIZE; i++) {                            // percorre todas as soluções
+            if (survivors[i] == 0) { continue; }                        // se não tiver sobrevivido, pula
+            for (int j = 0; j < N_ITEMS; j++) {                         // percorre todos os genes da solução
+                new_generation[survivors_included][j] = result[i][j];   // copia para a primeira linha disponível da nova matriz
+            }
+            survivors_included++;       // incrementa a quantidade de sobreviventes que já foram inclusos na nova matriz
+        }
+
+        // ### TESTES #############################
+        for (int i = 0; i < survivors_included; i++) {
+            for (int j = 0; j < N_ITEMS; j++) {
+                std::cout << new_generation[i][j] << " ";
+            }
+            std::cout << std::endl;
+        }
+        // ### TESTES #############################
 
         break;
         

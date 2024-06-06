@@ -292,13 +292,6 @@ std::vector<std::vector<int>> optimize(
         // faz a seleção e cria uma nova matriz com apenas os sobreviventes
         std::vector<int> survivors = make_selection(fitnesses);                             // faz a seleção com base nos valores de fitness
         std::vector<std::vector<int>> new_generation(POP_SIZE, std::vector<int>(N_ITEMS));  // declara a matriz da nova geração
-
-        // ### TESTES #############################
-        for (int i = 0; i < POP_SIZE; i++) {
-            std::cout << survivors[i] << " ";
-        }
-        std::cout << std::endl;
-        // ### TESTES #############################
         
         // preenche a matriz nova com os sobreviventes no começo dela
         int survivors_included = 0;                                     // quantidade de sobreviventes que já foram inclusos na nova matriz
@@ -310,14 +303,10 @@ std::vector<std::vector<int>> optimize(
             survivors_included++;       // incrementa a quantidade de sobreviventes que já foram inclusos na nova matriz
         }
 
-        // ### TESTES #############################
-        for (int i = 0; i < survivors_included; i++) {
-            for (int j = 0; j < N_ITEMS; j++) {
-                std::cout << new_generation[i][j] << " ";
-            }
-            std::cout << std::endl;
-        }
-        // ### TESTES #############################
+        // ETAPA 2.3 === === === === === === === === === === === === === === === === === === === === === === === === === === === === === optimize 2.3
+
+        
+
 
         break;
         

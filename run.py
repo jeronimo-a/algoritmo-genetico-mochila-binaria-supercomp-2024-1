@@ -44,55 +44,72 @@ def main():
     mutation_rate_neutral = mutation_rate_list[len(mutation_rate_list) // 2 - 1]    # pega o valor do meio
     crossover_rate_neutral = crossover_rate_list[len(crossover_rate_list) // 2 - 1] # pega o valor do meio
 
+    # dicionário dos argumentos para deixar o código menos repetitivo
+    arguments = {
+        "N_PARENTS": n_parents_list
+    }
+
+    # dicionário dos argumentos de chamada do script formatados
+    subprocess_arguments = {
+        "N_PARENTS": ([str(GENERATIONS), None, str(POP_SIZE), None, str(crossover_rate_neutral), str(mutation_rate_neutral)], 1, 3)
+    }
+
     # embaralha a lista de seeds e reduz o tamanho
     random.shuffle(seeds_list)
     seeds_list = seeds_list[:N_SEEDS]
 
     # dicionário dos resultados
-    results = {
-        "N_PARENTS": list()
-    }
+    results = dict()
 
-    # loop de variação da quantidade de soluções sobreviventes por geração
-    for n_parents in n_parents_list:
+    for key in arguments.keys():
 
-        # verbose para feedback de execução
-        print("N_PARENTS: %d/%d" % (n_parents, POP_SIZE))
+        # inicializa o par chave valor do tipo de argumento nos resultados
+        results[key] = list()
 
-        # variáveis para o loop de variação da seed
-        max_fitnesses = list()  # lista de valores máximos (finais) de fitness por seed
-        count = 0               # contagem de iterações para verbose de feedback de execução
+        # loop de variação da quantidade de soluções sobreviventes por geração
+        for argument in arguments[key]:
 
-        # loop de variação da seed
-        for seed in seeds_list:
+            # verbose para feedback de execução
+            print(key + ": %d/%d" % (argument, POP_SIZE))
 
-            # verbose de feedback de execução
-            if (count + 1) % 1000 == 0:                                # a cada 1000 iterações
-                print("\tSEED: %d/%d" % (count, len(seeds_list)))   # da sinal de vida
+            # variáveis para o loop de variação da seed
+            max_fitnesses = list()  # lista de valores máximos (finais) de fitness por seed
+            count = 0               # contagem de iterações para verbose de feedback de execução
 
-            # agrupa os argumentos e executa o algoritmo
-            args = [str(GENERATIONS), str(seed), str(POP_SIZE), str(n_parents), str(crossover_rate_neutral), str(mutation_rate_neutral)]
-            subprocess_results = subprocess.run(["./" + EXECUTABLE_NAME] + args, capture_output=True, text=True)
+            # loop de variação da seed
+            for seed in seeds_list:
 
-            # extrai a fitness máxima (final) da iteração e incrementa a contagem
-            max_fitness = int(subprocess_results.stdout.split()[-1])    # extrai a fitness máxima (final) da iteração
-            max_fitnesses.append(max_fitness)                           # adiciona a fitness máxima da iteração à lista de fitness máximas da seed
-            count += 1                                                  # incrementa a contagem
+                # verbose de feedback de execução
+                if (count + 1) % 1000 == 0:                                # a cada 1000 iterações
+                    print("\tSEED: %d/%d" % (count + 1, len(seeds_list)))   # da sinal de vida
 
-        # calcula a média das fitness máximas para a seed e armazena no dicionário dos resultados
-        average_fitness = np.mean(max_fitnesses)        # calcula a média
-        results["N_PARENTS"].append(average_fitness)    # adiciona ao dicionário de resultados
+                # define os argumentos do subprocess (de chamada do algoritmo)
+                seed_index = subprocess_arguments[key][1]                       # pega o índice do argumento da seed
+                argument_index = subprocess_arguments[key][2]                   # pega o índice do argumento em questão
+                subprocess_arguments[key][0][seed_index] = str(seed)            # inclui a seed nos argumentos
+                subprocess_arguments[key][0][argument_index] = str(argument)    # inclui o argumento em questão nos argumentos
 
-    # plota o gráfico do fitness máximo por quantidade de sobreviventes por geração
-    plt.plot(n_parents_list, results["N_PARENTS"])                              # plota fitness máximo por quantidade de sobreviventes por geração
-    while True:                                                                 # salva o gráfico nos outputs
-        try: plt.savefig("outputs/n_parents_%s.png" % start_time_string); break # salva em um arquivo com a data de início do processo na pasta outputs
-        except FileNotFoundError: os.system("mkdir outputs"); continue          # se a pasta não existir, a cria
-    plt.close()                                                                 # finaliza a plotagem
+                # cria um subprocesso de chamada do algoritmo genético
+                subprocess_results = subprocess.run(["./" + EXECUTABLE_NAME] + subprocess_arguments[key][0], capture_output=True, text=True)
+
+                # extrai a fitness máxima (final) da iteração e incrementa a contagem
+                max_fitness = int(subprocess_results.stdout.split()[-1])    # extrai a fitness máxima (final) da iteração
+                max_fitnesses.append(max_fitness)                           # adiciona a fitness máxima da iteração à lista de fitness máximas da seed
+                count += 1                                                  # incrementa a contagem
+
+            # calcula a média das fitness máximas para a seed e armazena no dicionário dos resultados
+            average_fitness = np.mean(max_fitnesses)        # calcula a média
+            results[key].append(average_fitness)            # adiciona ao dicionário de resultados
+
+        # plota o gráfico do fitness máximo por quantidade de sobreviventes por geração
+        plt.plot(n_parents_list, results[key])                                      # plota o gráfico de cada parâmetro vs fitness máximos
+        while True:                                                                 # salva o gráfico nos outputs
+            try: plt.savefig("outputs/%s_%s.png" % (key, start_time_string)); break # salva em um arquivo com a data de início do processo na pasta outputs
+            except FileNotFoundError: os.system("mkdir outputs"); continue          # se a pasta não existir, a cria
+        plt.close()                                                                 # finaliza a plotagem
 
     # remove o executável
     os.system("rm program")
-
 
 if __name__  == "__main__":
     main()

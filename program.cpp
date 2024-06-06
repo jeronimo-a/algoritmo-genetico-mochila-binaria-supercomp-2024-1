@@ -2,9 +2,6 @@
 #include <random>
 #include <vector>
 
-// constantes de controle geral
-const int GENERATIONS = 100;    // quantidade de vezes para rodar o algoritmo
-
 // constantes de controle dos itens
 const int N_ITEMS = 40;         // quantidade de itens
 const int MIN_VALUE = 1;        // valor mínimo de cada item
@@ -19,6 +16,7 @@ const int BAG_CAPACITY = 100;   // capacidade da mochila
 const int CROSSOVER_POINT = 20;     // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
 
 // variáveis de entrada (são passadas como argumentos para o programa)
+int GENERATIONS;        // quantidade de vezes para rodar o algoritmo
 int SEED;               // seed do gerador de números pseudoaleatórios
 int POP_SIZE;           // soluções por geração
 int N_PARENTS;          // quantas soluções são passadas adiante por iteração
@@ -337,7 +335,7 @@ std::vector<int> optimize(
 }
 
 void input_error(char *argv0) {
-    std::cerr << "Erro: utilização: " << argv0 << " <SEED:int>";
+    std::cerr << "Erro: utilização: " << argv0 << " <GENERATIONS:int>" << " <SEED:int>";
     std::cerr << " <POP_SIZE:int>" << " <N_PARENTS:integer> <CROSSOVER_RATE:double> ";
     std::cerr << "<MUTATION_RATE:double>" << std::endl;
 }
@@ -347,18 +345,19 @@ int parse_arguments(int argc, char* argv[]) {
     // atualiza as variáveis com os argumentos
 
     // gera um erro se a quantidade suficiente de argumentos não forem fornecidos
-    if (argc != 6) {
+    if (argc != 7) {
         input_error(argv[0]);
         return 1;
     }
 
     // coleta os argumentos
     try {
-        SEED = std::stoi(argv[1]);              // argumento da seed do gerado de números aleatórios
-        POP_SIZE = std::stoi(argv[2]);          // argumento da quantidade de soluções por geração
-        N_PARENTS = std::stoi(argv[3]);         // argumento do número de parents
-        CROSSOVER_RATE = std::stod(argv[4]);    // argumento da taxa de crossover
-        MUTATION_RATE = std::stod(argv[5]);     // argumento da taxa de mutação
+        GENERATIONS = std::stoi(argv[1]);       // argumento da quantidade de gerações
+        SEED = std::stoi(argv[2]);              // argumento da seed do gerado de números aleatórios
+        POP_SIZE = std::stoi(argv[3]);          // argumento da quantidade de soluções por geração
+        N_PARENTS = std::stoi(argv[4]);         // argumento do número de parents
+        CROSSOVER_RATE = std::stod(argv[5]);    // argumento da taxa de crossover
+        MUTATION_RATE = std::stod(argv[6]);     // argumento da taxa de mutação
     }
     
     // captura erros de argumentos de tipo inválido
@@ -389,6 +388,12 @@ int verify_constants() {
         is_any_invalid = 1;
     }
 
+    // gera erro no caso de GENERATIONS menor ou igual a zero
+    if (GENERATIONS <= 0) {
+        std::cerr << "Erro: GENERATIONS <= 0" << std::endl;
+        is_any_invalid = 1;
+    }
+
     // gera erro no caso de N_PARENTS menor que zero
     if (N_PARENTS < 0) {
         std::cerr << "Erro: N_PARENTS < 0" << std::endl;
@@ -412,7 +417,6 @@ int verify_constants() {
         std::cerr << "Erro: CROSSOVER_RATE tem que estar entre 0 e 1" << std::endl;
         is_any_invalid = 1;
     }
-
 
     return is_any_invalid;
 }

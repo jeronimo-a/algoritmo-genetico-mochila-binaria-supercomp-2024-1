@@ -21,17 +21,16 @@ const int BAG_CAPACITY = 100;   // capacidade da mochila
 // constantes de controle da população
 const int POP_SIZE = 10;        // soluções por população
 
-// constantes de controle da seleção
-const int N_PARENTS = 3;        // quantas soluções são passadas adiante por iteração
-
 // constantes de controle do crossover
-const double CROSSOVER_RATE = 0.8;  // probabilidade de ocorrer crossover para cada par de pais
 const int CROSSOVER_POINT = 20;     // índice do gene até o qual incluir genes do pai 1 (exclusive) e a partir do qual (inclusive) incluir genes do pai 2
 
-// constantes de controle da mutação
-const double MUTATION_RATE = .9;   // probabilidade de ocorrer uma mutação em um offspring
+// variáveis de entrada (são passadas como argumentos para o programa)
+int N_PARENTS;          // quantas soluções são passadas adiante por iteração
+double CROSSOVER_RATE;  // probabilidade de ocorrer crossover para cada par de pais
+double MUTATION_RATE;   // probabilidade de ocorrer uma mutação em um filho
 
 // identidades das funções
+int parse_arguments(int argc, char* argv[]);
 int verify_constants();                                                                                 // verifica a validade das constantes
 void print_constants();                                                                                 // imprime todas as constantes
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution);    // calcula o fitness de uma solução
@@ -44,9 +43,10 @@ std::vector<int> optimize(                                                      
     std::vector<int> item_weights
 );
 
-int main() {
+int main(int argc, char* argv[]) {
 
-    // verifica se as constantes são válidas
+    // faz o parsing dos argumentos e verifica se a sua combinação com as constantes é válida
+    if (parse_arguments(argc, argv)) { return 1; }
     if (verify_constants()) { return 1; }
 
     // imprime todas as constantes
@@ -103,28 +103,6 @@ int main() {
     for (int i = 0; i < GENERATIONS; i++) {
         std::cout << results[i] << std::endl;
     }
-}
-
-int verify_constants() {
-    // verifica as constantes e retorna 1 se algum dos valores for inválido
-    // também gera mensagens de erro explicativas
-
-    // bool, 1 se encontrou alguma constante inválida, 0 se não
-    int is_any_invalid = 0;
-
-    // gera erro no caso de N_PARENTS maior que POP_SIZE
-    if (N_PARENTS > POP_SIZE) {
-        std::cerr << "Erro: N_PARENTS > POP_SIZE." << std::endl;
-        is_any_invalid = 1;
-    }
-
-    // gera erro no caso de CROSSOVER_POINT maior ou igual a N_ITEMS
-    if (CROSSOVER_POINT >= N_ITEMS) {
-        std::cerr << "Erro: CROSSOVER_POINT >= N_ITEMS" << std::endl;
-        is_any_invalid = 1;
-    }
-
-    return is_any_invalid;
 }
 
 int calculate_fitness(std::vector<int> values, std::vector<int> weights, std::vector<int> solution) {
@@ -358,6 +336,77 @@ std::vector<int> optimize(
     }
 
     return results;
+}
+
+int parse_arguments(int argc, char* argv[]) {
+    // verifica se todos os argumentos necessários foram fornecidos
+    // atualiza as variáveis com os argumentos
+
+    // gera um erro se a quantidade suficiente de argumentos não forem fornecidos
+    if (argc != 4) {
+        std::cerr << "Erro: utilização: " << argv[0];
+        std::cerr << " <N_PARENTS:integer> <CROSSOVER_RATE:double> ";
+        std::cerr << "<MUTATION_RATE:double>" << std::endl;
+        return 1;
+    }
+
+    // coleta os argumentos
+    try {
+        N_PARENTS = std::stoi(argv[1]);
+        CROSSOVER_RATE = std::stod(argv[2]);
+        MUTATION_RATE = std::stod(argv[3]);
+    } catch (const std::invalid_argument& e) {
+        std::cerr << "Erro: utilização: " << argv[0];
+        std::cerr << " <N_PARENTS:integer> <CROSSOVER_RATE:double> ";
+        std::cerr << "<MUTATION_RATE:double>" << std::endl;
+        return 1;
+    } catch (const std::out_of_range& e) {
+        std::cerr << "Erro: argumentos grandes demais" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
+int verify_constants() {
+    // verifica as constantes e retorna 1 se algum dos valores for inválido
+    // também gera mensagens de erro explicativas
+
+    // bool, 1 se encontrou alguma constante inválida, 0 se não
+    int is_any_invalid = 0;
+
+    // gera erro no caso de N_PARENTS maior que POP_SIZE
+    if (N_PARENTS > POP_SIZE) {
+        std::cerr << "Erro: N_PARENTS > " << POP_SIZE << " (POP_SIZE)" << std::endl;
+        is_any_invalid = 1;
+    }
+
+    // gera erro no caso de N_PARENTS menor que zero
+    if (N_PARENTS < 0) {
+        std::cerr << "Erro: N_PARENTS < 0" << std::endl;
+        is_any_invalid = 1;
+    }
+
+    // gera erro no caso de CROSSOVER_POINT maior ou igual a N_ITEMS
+    if (CROSSOVER_POINT >= N_ITEMS) {
+        std::cerr << "Erro: CROSSOVER_POINT >= " << N_ITEMS << " (N_ITEMS)" << std::endl;
+        is_any_invalid = 1;
+    }
+
+    // gera erro no caso de MUTATION_RATE não estar entre 0 e 1
+    if (MUTATION_RATE < 0 || MUTATION_RATE > 1) {
+        std::cerr << "Erro: MUTATION_RATE tem que estar entre 0 e 1" << std::endl;
+        is_any_invalid = 1;
+    }
+
+    // gera erro no caso de CROSSOVER_RATE não estar entre 0 e 1
+    if (CROSSOVER_RATE < 0 || CROSSOVER_RATE > 1) {
+        std::cerr << "Erro: CROSSOVER_RATE tem que estar entre 0 e 1" << std::endl;
+        is_any_invalid = 1;
+    }
+
+
+    return is_any_invalid;
 }
 
 void print_constants() {
